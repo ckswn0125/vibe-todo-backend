@@ -8,10 +8,11 @@ const todosRouter = require("./routes/todos");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.mongo_url || process.env.MONGO_URL;
+const MONGO_URI =
+  process.env.MONGO_URI || process.env.MONGO_URL || process.env.mongo_url;
 
 if (!MONGO_URI) {
-  console.error("환경변수 mongo_url 을 불러오지 못했습니다. .env 파일을 확인하세요.");
+  console.error("환경변수 MONGO_URI 를 불러오지 못했습니다. .env 파일을 확인하세요.");
   process.exit(1);
 }
 
