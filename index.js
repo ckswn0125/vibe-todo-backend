@@ -8,10 +8,10 @@ const todosRouter = require("./routes/todos");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI?.trim();
 
 if (!MONGO_URI) {
-  console.error("환경변수 MONGO_URI 를 불러오지 못했습니다. .env 파일을 확인하세요.");
+  console.error("환경변수 MONGO_URI 를 불러오지 못했습니다. Heroku Config Vars 또는 .env 를 확인하세요.");
   process.exit(1);
 }
 
@@ -27,23 +27,21 @@ app.use(express.json());
 
 app.use("/todos", todosRouter);
 
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
+app.get("/", (_req, res) => {
+  res.json({ message: "Todo backend is running", health: "/health", todos: "/todos" });
 });
 
-const frontendDist = path.join(__dirname, "../todo-react/dist");
-app.use(express.static(frontendDist));
-app.get("/{*path}", (_req, res) => {
-  res.sendFile(path.join(frontendDist, "index.html"));
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
 });
 
 async function startServer() {
   try {
     await mongoose.connect(MONGO_URI);
-    console.log("연결 성공");
+    console.log("MongoDB 연결 성공");
 
-    app.listen(PORT, () => {
-      console.log(`Todo 앱 실행 중: http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Todo 앱 실행 중: port ${PORT}`);
     });
   } catch (error) {
     console.error("MongoDB 연결 실패:", error.message);
